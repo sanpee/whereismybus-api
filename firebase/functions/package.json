@@ -2,14 +2,14 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
+    "build:pre": "cd src && ts-node -e \"import * as ltadatamall from './ltadatamall'; ltadatamall.main();\"",
     "build": "npm run lint && tsc && cp src/busstops.json ./lib",
     "serve-functions": "npm run build && firebase emulators:start --only functions",
     "serve": "npm run build && firebase emulators:start",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "builddb": "ts-node -e \"import * as ltadatamall from './src/ltadatamall'; ltadatamall.main();\""
+    "logs": "firebase functions:log"
   },
   "engines": {
     "node": "14"
@@ -28,7 +28,7 @@
     "eslint-plugin-import": "^2.22.0",
     "firebase-functions-test": "^0.2.0",
     "typescript": "^3.8.0",
-    "ts-node": "^10.0.0" 
+    "ts-node": "^10.0.0"
   },
   "private": true
 }

@@ -148,6 +148,10 @@ export async function getAllBusStops(): Promise <BusStop[]> {
 
 export async function main() {
   console.log("ltadatamall.main()");
+  if (process.env.LTADATAMALL_KEY===undefined) {
+    console.log("Please set LTADATAMALL_KEY environment variable!");
+    return;
+  }
 
   const allBusStops: Array<BusStop> = await getAllBusStops();
   // eslint-disable-next-line
@@ -160,6 +164,3 @@ export async function main() {
   const busServices = await getBusServices("03059");
   console.log(busServices);
 }
-
-// Enable this to generate busstops.json
-// main();

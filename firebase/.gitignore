@@ -1,3 +1,6 @@
+# project specific
+busstops.json
+
 # Logs
 logs
 *.log
