@@ -15,13 +15,12 @@ interface BusStopResult {
 
 interface BusService {
   ServiceNo: string;
-  Operator: string;
-  // NextBus: any;
-  // NextBus2: any;
-  // NextBus3: any;
+  NextBus: {EstimatedArrival: string};
+  NextBus2: {EstimatedArrival: string};
+  NextBus3: {EstimatedArrival: string};
 }
 
-interface BusServicesResult {
+export interface BusServicesResult {
   BusStopCode: string;
   Services: BusService[];
 }
@@ -81,6 +80,44 @@ export async function findNearestBusStops(
   return allBusStops.slice(0, num);
 }
 
+export async function getBusArrivals(busStopCode: string): Promise<BusServicesResult> {
+  if (APIKey == "") {
+    console.log("Remember to set APIKey!");
+    return null;
+  }
+
+  const _options: rm.IRequestOptions = <rm.IRequestOptions> {};
+  _options.additionalHeaders = {
+    AccountKey: APIKey,
+  };
+
+  _options.queryParameters = {
+    params: {
+      BusStopCode: busStopCode,
+    },
+  };
+  const restclient: rm.RestClient = new rm.RestClient(
+    "ltadatamall",
+    "http://datamall2.mytransport.sg"
+  );
+  const busArrivalsRes: rm.IRestResponse<BusServicesResult> =
+   await restclient.get<BusServicesResult>("/ltaodataservice/BusArrivalv2", _options);
+  const busArrivals: BusServicesResult = {} as BusServicesResult;
+  // busArrivals.BusStopCode = busArrivalsRes.result.BusStopCode;
+  // busArrivals.Services = busArrivalsRes.result.Services;
+  busArrivals.BusStopCode = busArrivalsRes.result.BusStopCode;
+  /* eslint-disable */
+  busArrivals.Services = busArrivalsRes.result.Services.map(
+    ({ServiceNo, NextBus, NextBus2, NextBus3})=>(
+    { 
+      ServiceNo: ServiceNo,  
+      NextBus: {EstimatedArrival: NextBus.EstimatedArrival},
+      NextBus2: {EstimatedArrival: NextBus2.EstimatedArrival},
+      NextBus3: {EstimatedArrival: NextBus3.EstimatedArrival},
+    }));
+  /* eslint-enable */
+  return busArrivals;
+}
 
 export async function getBusServices(busStopCode: string): Promise<string[]> {
   let allBusServices: string[] = [];
@@ -158,9 +195,13 @@ export async function main() {
   console.log(`allBusStops.length: ${allBusStops.length}`);
   fs.writeFileSync("./busstops.json", JSON.stringify(allBusStops, null, 2), "utf-8");
 
-  const nearestBusStops = await findNearestBusStops(1.265588, 103.822327, 1, null);
-  console.log(nearestBusStops);
+  // const nearestBusStops = await findNearestBusStops(1.265588, 103.822327, 1, null);
+  // console.log(nearestBusStops);
 
-  const busServices = await getBusServices("03059");
-  console.log(busServices);
+  // const busServices = await getBusServices("03059");
+  // console.log(busServices);
+
+  const busArrivals = await getBusArrivals("14141");
+  // console.log(busArrivals.Services[0].NextBus);
+  console.log(busArrivals);
 }

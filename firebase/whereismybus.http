@@ -2,8 +2,9 @@
 // @functionshost = http://localhost:5001/whereismybussg/us-central1
 # Deployed
 @functionshost = https://us-central1-whereismybussg.cloudfunctions.net
-@busStopCode = 03059
+// @busStopCode = 03059
 // @busStopCode = 12345
+@busStopCode = 14141
 
 ###############################################################################
 #
@@ -49,13 +50,18 @@ GET {{functionshost}}/busStops
 GET {{functionshost}}/busServices
     ?BusStopCode={{busStopCode}}
 
+###############################################################################
+#
+# filter functions
+GET {{functionshost}}/busArrivalv2
+    ?BusStopCode={{busStopCode}}
 
 ###############################################################################
 #
 # REST API from lta
 #
 @ltaserver = http://datamall2.mytransport.sg
-@apikey = PleaseObtainFromLTADATAMall
+@apikey = zR1/YT/QS9C3uXMBjWQvZg==
 
 ###############################################################################
 #
@@ -67,13 +73,21 @@ Accept: application/json
 ###############################################################################
 #
 #
-GET {{ltaserver}}/ltaodataservice/BusArrivalv2?BusStopCode=01012&ServiceCode=175
+GET {{ltaserver}}/ltaodataservice/BusArrivalv2?BusStopCode=14141&ServiceNo=143
 AccountKey: {{apikey}}
 Accept: application/json
 
 ###############################################################################
 #
 #
-GET http://datamall2.mytransport.sg/ltaodataservice/BusStopSet?$skip=50
+GET {{ltaserver}}/ltaodataservice/BusArrivalv2?BusStopCode=14141
+AccountKey: {{apikey}}
+Accept: application/json
+
+
+###############################################################################
+#
+#
+GET http://datamall2.mytransport.sg/ltaodataservice/BusStop?$skip=50
 AccountKey: {{apikey}}
 Accept: application/json

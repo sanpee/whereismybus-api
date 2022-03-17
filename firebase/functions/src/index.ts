@@ -139,3 +139,18 @@ export const busServices = functions.https.onRequest((request, response) => {
     response.send(JSON.stringify(services));
   }
 });
+
+export const busArrivalv2 = functions.https.onRequest((request, response) => {
+  let arrivals: Promise<lta.BusServicesResult>;
+  if (request.query.BusStopCode != null) {
+    lta.setAPIKey(functions.config().ltadatamall.key);
+    arrivals = lta.getBusArrivals(request.query.BusStopCode as string);
+    arrivals.then((_arrivals)=>{
+      response.type("application/json");
+      response.send(JSON.stringify(_arrivals));
+    });
+  } else {
+    response.type("application/json");
+    response.send(JSON.stringify(arrivals));
+  }
+});
