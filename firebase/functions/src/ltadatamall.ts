@@ -20,9 +20,19 @@ interface BusService {
   NextBus3: {EstimatedArrival: string};
 }
 
+interface BusService2 {
+  ServiceNo: string;
+  Arrivals: [ string, string, string ];
+}
+
 export interface BusServicesResult {
   BusStopCode: string;
   Services: BusService[];
+}
+
+export interface BusServicesResult2 {
+  BusStopCode: string;
+  Services: BusService2[];
 }
 
 let APIKey: string = process.env.LTADATAMALL_KEY;
@@ -52,7 +62,6 @@ export function pythagorasEquirectangular(
   const d = Math.sqrt(x * x + y * y) * R;
   return d;
 }
-
 
 /**
  * Search for n nearest bus stops to [lat,lon].
@@ -113,7 +122,46 @@ export async function getBusArrivals(busStopCode: string): Promise<BusServicesRe
       ServiceNo: ServiceNo,  
       NextBus: {EstimatedArrival: NextBus.EstimatedArrival},
       NextBus2: {EstimatedArrival: NextBus2.EstimatedArrival},
-      NextBus3: {EstimatedArrival: NextBus3.EstimatedArrival},
+      NextBus3: {EstimatedArrival: NextBus3.EstimatedArrival}
+    }));
+  /* eslint-enable */
+  return busArrivals;
+}
+
+export async function getBusArrivalsv2(busStopCode: string): Promise<BusServicesResult2> {
+  if (APIKey == "") {
+    console.log("Remember to set APIKey!");
+    return null;
+  }
+
+  const _options: rm.IRequestOptions = <rm.IRequestOptions> {};
+  _options.additionalHeaders = {
+    AccountKey: APIKey,
+  };
+
+  _options.queryParameters = {
+    params: {
+      BusStopCode: busStopCode,
+    },
+  };
+  const restclient: rm.RestClient = new rm.RestClient(
+    "ltadatamall",
+    "http://datamall2.mytransport.sg"
+  );
+  const busArrivalsRes: rm.IRestResponse<BusServicesResult> =
+   await restclient.get<BusServicesResult>("/ltaodataservice/BusArrivalv2", _options);
+  const busArrivals: BusServicesResult2 = {} as BusServicesResult2;
+  busArrivals.BusStopCode = busArrivalsRes.result.BusStopCode;
+  /* eslint-disable */
+  busArrivals.Services = busArrivalsRes.result.Services.map(
+    ({ServiceNo, NextBus, NextBus2, NextBus3})=>(
+    { 
+      ServiceNo: ServiceNo,  
+      Arrivals: [ 
+        NextBus.EstimatedArrival,
+        NextBus2.EstimatedArrival,
+        NextBus3.EstimatedArrival
+      ],
     }));
   /* eslint-enable */
   return busArrivals;
@@ -202,6 +250,8 @@ export async function main() {
   // console.log(busServices);
 
   const busArrivals = await getBusArrivals("14141");
-  // console.log(busArrivals.Services[0].NextBus);
   console.log(busArrivals);
+
+  const busArrivals2 = await getBusArrivalsv2("14141");
+  console.log(busArrivals2);
 }

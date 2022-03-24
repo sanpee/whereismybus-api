@@ -53,8 +53,15 @@ GET {{functionshost}}/busServices
 ###############################################################################
 #
 # filter functions
+GET {{functionshost}}/busArrival
+    ?BusStopCode={{busStopCode}}
+
+###############################################################################
+#
+# filter functions
 GET {{functionshost}}/busArrivalv2
     ?BusStopCode={{busStopCode}}
+
 
 ###############################################################################
 #

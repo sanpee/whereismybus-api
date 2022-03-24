@@ -124,7 +124,6 @@ export const busStops = functions
   }
 });
 
-
 export const busServices = functions.https.onRequest((request, response) => {
   let services: Promise<string[]>;
   if (request.query.BusStopCode != null) {
@@ -140,11 +139,26 @@ export const busServices = functions.https.onRequest((request, response) => {
   }
 });
 
-export const busArrivalv2 = functions.https.onRequest((request, response) => {
+export const busArrival = functions.https.onRequest((request, response) => {
   let arrivals: Promise<lta.BusServicesResult>;
   if (request.query.BusStopCode != null) {
     lta.setAPIKey(functions.config().ltadatamall.key);
     arrivals = lta.getBusArrivals(request.query.BusStopCode as string);
+    arrivals.then((_arrivals)=>{
+      response.type("application/json");
+      response.send(JSON.stringify(_arrivals));
+    });
+  } else {
+    response.type("application/json");
+    response.send(JSON.stringify(arrivals));
+  }
+});
+
+export const busArrivalv2 = functions.https.onRequest((request, response) => {
+  let arrivals: Promise<lta.BusServicesResult2>;
+  if (request.query.BusStopCode != null) {
+    lta.setAPIKey(functions.config().ltadatamall.key);
+    arrivals = lta.getBusArrivalsv2(request.query.BusStopCode as string);
     arrivals.then((_arrivals)=>{
       response.type("application/json");
       response.send(JSON.stringify(_arrivals));
