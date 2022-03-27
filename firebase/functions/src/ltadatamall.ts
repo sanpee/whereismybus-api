@@ -20,14 +20,14 @@ interface BusService {
   NextBus3: {EstimatedArrival: string};
 }
 
-interface BusService2 {
-  ServiceNo: string;
-  Arrivals: [ string, string, string ];
-}
-
 export interface BusServicesResult {
   BusStopCode: string;
   Services: BusService[];
+}
+
+interface BusService2 {
+  ServiceNo: string;
+  Arrivals: [ string, string, string ];
 }
 
 export interface BusServicesResult2 {
