@@ -33,8 +33,8 @@ export const initBusStops = functions
     timeoutSeconds: 540,
   })
   .https.onRequest((request, response) => {
-    lta.setAPIKey(functions.config().ltadatamall.key);
-    const allBusStops = lta.getAllBusStops();
+    const ltaDatamallKey = request.get("AccountKey");
+    const allBusStops = lta.getAllBusStops(ltaDatamallKey);
     allBusStops.then( async (busStops)=>{
       // eslint-disable-next-line
       console.log(`${busStops.length} bus stops found.`);
@@ -83,6 +83,9 @@ async function getAllBusStops(): Promise<lta.BusStop[]> {
   });
 }
 
+/*
+API to return all bus stops.
+*/
 export const busStops = functions
 .runWith({
   timeoutSeconds: 300,
@@ -111,60 +114,100 @@ export const busStops = functions
     }
     // console.log("lat: " + lat);
     // console.log("lon: " + lon);
-    lta.setAPIKey(functions.config().ltadatamall.key);
+    const ltaDatamallKey = request.get("AccountKey");
     // const nearestBusStops = lta.findNearestBusStops(lat, lon, num, useStore?(await getAllBusStops()):null);
-    const nearestBusStops = lta.findNearestBusStops(lat, lon, num, allBusStops);
+    const nearestBusStops = lta.findNearestBusStops(ltaDatamallKey, lat, lon, num, allBusStops);
     nearestBusStops.then((busStops) => {
       response.type("application/json");
       response.send(JSON.stringify(busStops));
+    })
+    .catch((err)=>{
+      response.statusCode = 400;
+      response.type("application/text");
+      response.send(err.message);
     });
   } else {
     response.type("application/json");
-    response.send(JSON.stringify(busStops));
+    response.send(JSON.stringify({}));
   }
 });
 
+/*
+Returns bus services avalaible for a bus stop.
+Query parameters:
+  BusStopCode
+*/
 export const busServices = functions.https.onRequest((request, response) => {
   let services: Promise<string[]>;
   if (request.query.BusStopCode != null) {
-    lta.setAPIKey(functions.config().ltadatamall.key);
-    services = lta.getBusServices(request.query.BusStopCode as string);
+    const ltaDatamallKey = request.get("AccountKey");
+    services = lta.getBusServices(ltaDatamallKey, request.query.BusStopCode as string);
     services.then((_services)=>{
       response.type("application/json");
       response.send(JSON.stringify(_services));
+    })
+    .catch((err)=>{
+      response.statusCode = 400;
+      response.type("application/text");
+      response.send(err.message);
     });
   } else {
     response.type("application/json");
-    response.send(JSON.stringify(services));
+    response.send(JSON.stringify({}));
   }
 });
 
+/*
+Returns bus services arrival time for a bus stop.
+Query parameters:
+  BusStopCode
+*/
 export const busArrival = functions.https.onRequest((request, response) => {
   let arrivals: Promise<lta.BusServicesResult>;
   if (request.query.BusStopCode != null) {
-    lta.setAPIKey(functions.config().ltadatamall.key);
-    arrivals = lta.getBusArrivals(request.query.BusStopCode as string);
-    arrivals.then((_arrivals)=>{
+    const ltaDatamallKey = request.get("AccountKey");
+    arrivals = lta.getBusArrivals(ltaDatamallKey, request.query.BusStopCode as string);
+    arrivals
+    .then((_arrivals)=>{
+      if (_arrivals==null) {
+        response.statusCode = 500;
+        _arrivals = {} as lta.BusServicesResult;
+      }
       response.type("application/json");
       response.send(JSON.stringify(_arrivals));
+    })
+    .catch((err)=>{
+      response.statusCode = 400;
+      response.type("application/text");
+      response.send(err.message);
     });
   } else {
     response.type("application/json");
-    response.send(JSON.stringify(arrivals));
+    response.send(JSON.stringify({}));
   }
 });
 
-export const busArrivalv2 = functions.https.onRequest((request, response) => {
+/*
+Returns bus services arrival time for a bus stop, in a simplified format.
+Query parameters:
+  BusStopCode
+*/
+export const busArrivalv2 = functions.https.onRequest( (request, response)=>{
   let arrivals: Promise<lta.BusServicesResult2>;
   if (request.query.BusStopCode != null) {
-    lta.setAPIKey(functions.config().ltadatamall.key);
-    arrivals = lta.getBusArrivalsv2(request.query.BusStopCode as string);
+    const ltaDatamallKey = request.get("AccountKey");
+    arrivals = lta.getBusArrivalsv2(ltaDatamallKey, request.query.BusStopCode as string);
     arrivals.then((_arrivals)=>{
       response.type("application/json");
       response.send(JSON.stringify(_arrivals));
+    })
+    .catch((err)=>{
+      response.statusCode = 400;
+      response.type("application/text");
+      response.send(err.message);
     });
   } else {
     response.type("application/json");
-    response.send(JSON.stringify(arrivals));
+    response.send(JSON.stringify({}));
   }
 });

@@ -1,7 +1,7 @@
 ## Emulator
-// @functionshost = http://localhost:5001/whereismybussg/us-central1
+@functionshost = http://localhost:5001/whereismybussg/us-central1
 # Deployed
-@functionshost = https://us-central1-whereismybussg.cloudfunctions.net
+// @functionshost = https://us-central1-whereismybussg.cloudfunctions.net
 // @busStopCode = 03059
 // @busStopCode = 12345
 @busStopCode = 14141
@@ -49,19 +49,21 @@ GET {{functionshost}}/busStops
 #
 GET {{functionshost}}/busServices
     ?BusStopCode={{busStopCode}}
+AccountKey: {{apikey}}
 
 ###############################################################################
 #
 # filter functions
 GET {{functionshost}}/busArrival
     ?BusStopCode={{busStopCode}}
+AccountKey: {{apikey}}
 
 ###############################################################################
 #
 # filter functions
 GET {{functionshost}}/busArrivalv2
     ?BusStopCode={{busStopCode}}
-
+AccountKey: {{apikey}}
 
 ###############################################################################
 #

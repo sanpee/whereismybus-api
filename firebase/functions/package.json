@@ -3,7 +3,8 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build:pre": "cd src && ts-node -e \"import * as ltadatamall from './ltadatamall'; ltadatamall.main();\"",
-    "build": "npm run lint && tsc && copy src/busstops.json ./lib",
+    "build": "npm run lint && tsc && copy .\\src\\busstops.json .\\lib",
+    "build2": "npm run lint && tsc",
     "serve-functions": "npm run build && firebase emulators:start --only functions",
     "serve": "npm run build && firebase emulators:start",
     "shell": "npm run build && firebase functions:shell",
